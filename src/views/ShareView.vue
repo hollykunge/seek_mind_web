@@ -5,17 +5,30 @@ import AppHeader from '@/components/layout/AppHeader.vue'
 import AppFooter from '@/components/layout/AppFooter.vue'
 import DownloadButton from '@/components/ui/DownloadButton.vue'
 import SocialShare from '@/components/ui/SocialShare.vue'
+import DOMPurify from 'dompurify'
 
 const route = useRoute()
 const router = useRouter()
 
 // 响应式数据
 const isLoading = ref(true)
-const content = ref<any>(null)
+interface ArticleContent {
+  id: string
+  title: string
+  description: string
+  content: string
+  author: string
+  publishDate: string
+  readTime: string
+  tags: string[]
+  image: string
+}
+
+const content = ref<ArticleContent | null>(null)
 const error = ref<string | null>(null)
 
 // 获取内容ID
-const contentId = computed(() => route.params.id as string)
+const contentId = computed(() => route.params.id as string | undefined)
 
 // 模拟内容数据
 const mockContents = {
@@ -114,6 +127,11 @@ const fetchContent = async () => {
     isLoading.value = false
   }
 }
+
+// 生成经过 XSS 过滤的安全 HTML
+const sanitizedHtml = computed(() => {
+  return content.value ? DOMPurify.sanitize(content.value.content) : ''
+})
 
 // 分享功能
 const shareContent = () => {
@@ -262,7 +280,7 @@ onMounted(() => {
 
           <!-- 内容正文 -->
           <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
-            <div class="prose prose-lg max-w-none" v-html="content.content"></div>
+            <div class="prose prose-lg max-w-none" v-html="sanitizedHtml"></div>
 
             <!-- 社交分享 -->
             <div class="mt-8 pt-8 border-t border-gray-200">

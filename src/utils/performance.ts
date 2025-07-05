@@ -21,10 +21,13 @@ class PerformanceMonitor {
     // 观察 FCP 和 LCP
     if ('PerformanceObserver' in window) {
       try {
-        const paintObserver = new PerformanceObserver((list) => {
+        const paintObserver = new PerformanceObserver((list, observer) => {
           for (const entry of list.getEntries()) {
             if (entry.name === 'first-contentful-paint') {
               this.metrics.fcp = entry.startTime
+              // 指标已捕获，停止观察以释放资源
+              observer.disconnect()
+              this.observers = this.observers.filter((o) => o !== observer)
             }
           }
         })
@@ -32,18 +35,24 @@ class PerformanceMonitor {
         this.observers.push(paintObserver)
 
         // LCP 观察器
-        const lcpObserver = new PerformanceObserver((list) => {
+        const lcpObserver = new PerformanceObserver((list, observer) => {
           const entries = list.getEntries()
           const lastEntry = entries[entries.length - 1]
           this.metrics.lcp = lastEntry.startTime
+          // LCP 一旦记录，停止观察
+          observer.disconnect()
+          this.observers = this.observers.filter((o) => o !== observer)
         })
         lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] })
         this.observers.push(lcpObserver)
 
         // FID 观察器
-        const fidObserver = new PerformanceObserver((list) => {
+        const fidObserver = new PerformanceObserver((list, observer) => {
           for (const entry of list.getEntries()) {
             this.metrics.fid = (entry as any).processingStart - entry.startTime
+            // FID 只需记录一次即可
+            observer.disconnect()
+            this.observers = this.observers.filter((o) => o !== observer)
           }
         })
         fidObserver.observe({ entryTypes: ['first-input'] })
