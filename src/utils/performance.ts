@@ -17,7 +17,7 @@ class PerformanceMonitor {
   }
 
   // 初始化性能观察器
-  private initObservers() {
+  public initObservers() {
     // 观察 FCP 和 LCP
     if ('PerformanceObserver' in window) {
       try {
@@ -199,6 +199,7 @@ class PerformanceMonitor {
   disconnect() {
     this.observers.forEach((observer) => observer.disconnect())
     this.observers = []
+    this.metrics = {}
   }
 }
 
@@ -218,6 +219,29 @@ window.addEventListener('beforeunload', () => {
   performanceMonitor.sendMetrics()
   performanceMonitor.disconnect()
 })
+
+// 在SPA应用中，监听路由变化来清理观察器
+let currentPath = window.location.pathname
+const checkRouteChange = () => {
+  if (window.location.pathname !== currentPath) {
+    currentPath = window.location.pathname
+    // 路由变化时清理旧的观察器并重新初始化
+    performanceMonitor.disconnect()
+    // 延迟重新初始化，确保新页面DOM已加载
+    setTimeout(() => {
+      performanceMonitor.initObservers()
+    }, 100)
+  }
+}
+
+// 使用MutationObserver监听DOM变化来检测路由变化
+if (typeof window !== 'undefined' && 'MutationObserver' in window) {
+  const observer = new MutationObserver(checkRouteChange)
+  observer.observe(document.body, { childList: true, subtree: true })
+}
+
+// 也监听popstate事件（浏览器前进后退）
+window.addEventListener('popstate', checkRouteChange)
 
 // 导出工具函数
 export const measurePageLoad = () => {

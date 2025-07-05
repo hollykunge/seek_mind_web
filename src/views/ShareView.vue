@@ -143,6 +143,80 @@ const goHome = () => {
   router.push('/')
 }
 
+// 内容安全化函数
+const sanitizeContent = (content: string): string => {
+  // 创建一个临时DOM元素来解析HTML
+  const tempDiv = document.createElement('div')
+  tempDiv.innerHTML = content
+  
+  // 允许的HTML标签
+  const allowedTags = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'strong', 'em', 'br', 'a']
+  
+  // 允许的属性
+  const allowedAttributes = {
+    'a': ['href', 'title']
+  }
+  
+  // 递归清理DOM节点
+  const cleanNode = (node: Node): Node | null => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      return node
+    }
+    
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const element = node as Element
+      const tagName = element.tagName.toLowerCase()
+      
+      // 检查是否为允许的标签
+      if (!allowedTags.includes(tagName)) {
+        return null
+      }
+      
+      // 创建新的干净元素
+      const cleanElement = document.createElement(tagName)
+      
+      // 复制允许的属性
+      const allowedAttrs = allowedAttributes[tagName] || []
+      for (const attr of Array.from(element.attributes)) {
+        if (allowedAttrs.includes(attr.name)) {
+          // 对链接进行额外验证
+          if (attr.name === 'href') {
+            const href = attr.value
+            if (href.startsWith('http://') || href.startsWith('https://') || href.startsWith('mailto:')) {
+              cleanElement.setAttribute(attr.name, href)
+            }
+          } else {
+            cleanElement.setAttribute(attr.name, attr.value)
+          }
+        }
+      }
+      
+      // 递归处理子节点
+      for (const child of Array.from(element.childNodes)) {
+        const cleanChild = cleanNode(child)
+        if (cleanChild) {
+          cleanElement.appendChild(cleanChild)
+        }
+      }
+      
+      return cleanElement
+    }
+    
+    return null
+  }
+  
+  // 清理所有子节点
+  const cleanDiv = document.createElement('div')
+  for (const child of Array.from(tempDiv.childNodes)) {
+    const cleanChild = cleanNode(child)
+    if (cleanChild) {
+      cleanDiv.appendChild(cleanChild)
+    }
+  }
+  
+  return cleanDiv.innerHTML
+}
+
 // 页面加载时获取内容
 onMounted(() => {
   fetchContent()
@@ -262,7 +336,7 @@ onMounted(() => {
 
           <!-- 内容正文 -->
           <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
-            <div class="prose prose-lg max-w-none" v-html="content.content"></div>
+            <div class="prose prose-lg max-w-none" v-html="sanitizeContent(content.content)"></div>
 
             <!-- 社交分享 -->
             <div class="mt-8 pt-8 border-t border-gray-200">

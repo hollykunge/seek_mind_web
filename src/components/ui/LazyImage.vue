@@ -129,6 +129,7 @@ const initObserver = () => {
           // 开始加载后就不需要继续观察了
           if (observer) {
             observer.disconnect()
+            observer = null
           }
         }
       })
@@ -139,11 +140,20 @@ const initObserver = () => {
     }
   )
 
-  // 开始观察容器元素
-  const container = imageRef.value?.parentElement
-  if (container) {
-    observer.observe(container)
+  // 使用 nextTick 确保DOM完全渲染后再获取容器元素
+  const startObserving = () => {
+    const container = imageRef.value?.parentElement
+    if (container && observer) {
+      observer.observe(container)
+    } else if (!container) {
+      // 如果容器不存在，直接加载图片
+      console.warn('LazyImage: 找不到容器元素，直接加载图片')
+      inView.value = true
+    }
   }
+
+  // 延迟执行以确保DOM完全渲染
+  setTimeout(startObserving, 0)
 }
 
 onMounted(() => {
@@ -153,6 +163,7 @@ onMounted(() => {
 onUnmounted(() => {
   if (observer) {
     observer.disconnect()
+    observer = null
   }
 })
 </script>
