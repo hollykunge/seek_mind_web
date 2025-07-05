@@ -97,7 +97,7 @@ interface Props {
   showQRCode?: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   iosUrl: 'https://apps.apple.com/app/seekmind',
   androidUrl: 'https://play.google.com/store/apps/details?id=com.seekmind.app',
   showQRCode: false,
@@ -120,21 +120,41 @@ const trackDownload = (platform: 'ios' | 'android') => {
 
 <style scoped>
 .download-btn {
-  @apply bg-black text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg hover:bg-gray-800 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl;
-  min-width: 160px;
+  @apply bg-gray-900 dark:bg-gray-800 text-white px-6 py-3 rounded-xl hover:bg-gray-800 dark:hover:bg-gray-700 transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 shadow-lg hover:shadow-xl;
+  min-width: 180px;
 }
 
 @media (min-width: 640px) {
   .download-btn {
-    min-width: 200px;
+    min-width: 220px;
+    @apply px-8 py-4;
   }
 }
 
+.download-btn:hover {
+  box-shadow:
+    0 10px 25px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
 .ios-btn {
-  @apply bg-black;
+  @apply bg-gray-900 dark:bg-gray-800;
+}
+
+.ios-btn:hover {
+  @apply bg-gray-800 dark:bg-gray-700;
 }
 
 .android-btn {
-  @apply bg-black;
+  @apply bg-gray-900 dark:bg-gray-800;
+}
+
+.android-btn:hover {
+  @apply bg-gray-800 dark:bg-gray-700;
+}
+
+/* 增强二维码区域样式 */
+.download-btn + div {
+  @apply animate-fade-in;
 }
 </style>
