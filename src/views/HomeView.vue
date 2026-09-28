@@ -1,496 +1,327 @@
 <script setup lang="ts">
-import AppFooter from '@/components/layout/AppFooter.vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
+import AppFooter from '@/components/layout/AppFooter.vue'
+import ProductDemo from '@/components/home/ProductDemo.vue'
+import MemoryBoard from '@/components/home/MemoryBoard.vue'
 import DownloadButton from '@/components/ui/DownloadButton.vue'
-import FeatureCard from '@/components/ui/FeatureCard.vue'
 import {
-  ChartBarIcon,
-  CheckCircleIcon,
-  RocketLaunchIcon,
+  ArrowDownIcon,
+  ArrowUpRightIcon,
+  ArrowRightIcon,
+  BookOpenIcon,
   SparklesIcon,
+  LightBulbIcon,
+  ChartBarIcon,
   UsersIcon,
+  ShieldCheckIcon,
+  RocketLaunchIcon,
+  CheckIcon,
+  ClockIcon,
+  ChatBubbleLeftRightIcon,
+  AcademicCapIcon,
+  BriefcaseIcon,
+  PencilSquareIcon,
 } from '@heroicons/vue/24/outline'
-import { onMounted, ref } from 'vue'
+import '@/assets/landing.css'
 
-// 响应式数据
-const isVisible = ref(false)
-
-// 功能特性数据
+const planCreated = ref(false)
+const scenario = ref(0)
+const scenarios = [
+  {
+    label: '工作与创造',
+    icon: BriefcaseIcon,
+    heading: '把模糊的想法，变成清晰的方向。',
+    text: '从整理需求到探索创意，从分析问题到做出决策。让索智AI陪你拆解复杂任务，把精力留给真正重要的创造。',
+    image: '/images/creative-moodboard.jpg',
+    alt: '充满灵感的创意工作空间',
+    quote: '一个好问题，往往是好作品的开始。',
+    tags: ['创意探索', '问题拆解', '高效决策'],
+  },
+  {
+    label: '学习与成长',
+    icon: AcademicCapIcon,
+    heading: '让每一点新知，都成为你的能力。',
+    text: '找到适合自己的学习节奏，建立知识之间的连接。通过日常练习和思考复盘，把学过的知识变成真正的理解。',
+    image: '/images/quiet-workspace.jpg',
+    alt: '自然光下专注学习与创作的探索者',
+    quote: '每天多想一步，慢慢走得更远。',
+    tags: ['学习计划', '逻辑训练', '知识连接'],
+  },
+  {
+    label: '生活与探索',
+    icon: LightBulbIcon,
+    heading: '在日常的小事里，遇见新的可能。',
+    text: '为周末做一个计划，为好奇心留一点空间。从生活中的问题出发，发现不同的视角，也发现更丰富的自己。',
+    image: '/images/weekend-hiking.png',
+    alt: '阳光下开阔的山间徒步风景',
+    quote: '带着好奇心，生活处处是灵感。',
+    tags: ['生活规划', '探索发现', '习惯养成'],
+  },
+]
+const currentScenario = computed(() => scenarios[scenario.value]!)
 const features = [
   {
-    icon: 'brain',
+    icon: ChatBubbleLeftRightIcon,
     title: '智能思维训练',
-    description:
-      '基于认知科学的思维训练体系，帮助您系统性提升逻辑思维、创造性思维和批判性思维能力。',
+    text: '从逻辑推理到批判性思考，用日常练习建立更清晰的思维习惯。',
+    label: 'Think clearly',
+    type: 'thinking',
   },
   {
-    icon: 'lightbulb',
+    icon: LightBulbIcon,
     title: '创意激发引擎',
-    description: '独创的创意激发算法，结合多种思维技巧，帮助您在工作和生活中产生更多创新想法。',
+    text: '跳出熟悉的思路，连接不同的想法，让灵感成为可以行动的方向。',
+    label: 'Create freely',
+    type: 'creative',
   },
   {
-    icon: 'chart',
+    icon: ChartBarIcon,
     title: '个性化学习路径',
-    description: 'AI智能分析您的思维特点，定制专属学习计划，让每一次练习都更有针对性和效果。',
+    text: '根据你的目标与节奏，找到适合自己的学习方式，让成长更有方向。',
+    label: 'Grow your way',
+    type: 'learning',
   },
   {
-    icon: 'users',
+    icon: UsersIcon,
     title: '思维社区交流',
-    description: '与全球思维爱好者交流心得，分享思维成果，在互动中不断提升自己的思维水平。',
+    text: '分享一个发现，听见不同观点。和同样好奇的人一起拓宽思考的边界。',
+    label: 'Explore together',
+    type: 'community',
   },
   {
-    icon: 'shield',
-    title: '科学验证方法',
-    description: '所有训练方法均基于最新的脑科学研究成果，确保训练的科学性和有效性。',
+    icon: ShieldCheckIcon,
+    title: '科学训练方法',
+    text: '结合认知科学的思维方法，将问题拆解、联想与复盘融入每次练习。',
+    label: 'Built on science',
+    type: 'science',
   },
   {
-    icon: 'rocket',
-    title: '快速能力提升',
-    description: '经过优化的训练流程，让您在短时间内感受到思维能力的显著提升和改变。',
+    icon: RocketLaunchIcon,
+    title: '持续能力提升',
+    text: '看见每一次练习的积累，在不断尝试中，逐步形成属于自己的思维方式。',
+    label: 'A little, every day',
+    type: 'growth',
   },
 ]
-
-// 用户评价数据
-const testimonials = [
-  {
-    name: '张小明',
-    role: '产品经理',
-    content: '索智AI让我的思维更加清晰有条理，工作效率提升了30%，强烈推荐给所有职场人士！',
-    avatar: '👨‍💼',
-  },
-  {
-    name: '李小红',
-    role: '创业者',
-    content: '使用索智AI三个月，我的创新思维得到了极大提升，现在能够更快地找到解决问题的方法。',
-    avatar: '👩‍💼',
-  },
-  {
-    name: '王小强',
-    role: '学生',
-    content: '作为一名学生，索智AI帮助我提高了学习效率，思考问题的角度也更加多元化了。',
-    avatar: '👨‍🎓',
-  },
-]
-
-// 页面加载动画
+let observer: IntersectionObserver | undefined
 onMounted(() => {
-  setTimeout(() => {
-    isVisible.value = true
-  }, 100)
+  if (
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+    !('IntersectionObserver' in window)
+  )
+    return
+  observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-revealed')
+          observer?.unobserve(entry.target)
+        }
+      })
+    },
+    { threshold: 0.08 },
+  )
+  document.querySelectorAll('.landing-page .reveal').forEach((element) => {
+    element.classList.add('will-reveal')
+    observer?.observe(element)
+  })
 })
+onUnmounted(() => observer?.disconnect())
 </script>
 
 <template>
-  <div class="min-h-screen">
-    <!-- 头部导航 -->
+  <div class="landing-page">
+    <a class="skip-link" href="#main-content">跳转到主要内容</a>
     <AppHeader />
-
-    <!-- 主要内容 -->
-    <main>
-      <!-- 英雄区域 -->
-      <section class="gradient-bg py-20 lg:py-32 relative overflow-hidden">
-        <!-- 背景装饰 -->
-        <div class="absolute inset-0">
-          <div
-            class="absolute top-20 left-10 w-72 h-72 bg-primary-500/10 rounded-full blur-3xl animate-float"
-          ></div>
-          <div
-            class="absolute bottom-20 right-10 w-96 h-96 bg-accent-500/10 rounded-full blur-3xl animate-float"
-            style="animation-delay: 1s"
-          ></div>
+    <main id="main-content">
+      <section id="top" class="landing-hero">
+        <div class="hero-atmosphere" aria-hidden="true"></div>
+        <div class="hero-title">
+          <span class="hero-eyebrow">A LITTLE CLARITY. A WORLD OF POSSIBILITY.</span>
+          <h1>认识「索智AI」</h1>
+          <p>懂你的思考，陪你发现更多可能。</p>
         </div>
-
-        <div class="container-max section-padding relative">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <!-- 左侧内容 -->
-            <div class="text-center lg:text-left" :class="{ 'animate-slide-up': isVisible }">
-              <div class="mb-6">
-                <span class="badge-primary">🚀 AI驱动的思维提升平台</span>
-              </div>
-              <h1
-                class="text-4xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6 leading-tight"
-              >
-                开启您的
-                <span class="gradient-text">智慧人生</span>
-                新篇章
-              </h1>
-              <p class="text-xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
-                索智AI是一款革命性的智能思维助手APP，运用前沿的认知科学理论，
-                帮助您系统性提升思维能力，激发无限创造力，成就更好的自己。
-              </p>
-              <div class="mb-8">
-                <DownloadButton />
-              </div>
-              <div
-                class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start text-sm text-gray-500"
-              >
-                <div class="flex items-center">
-                  <CheckCircleIcon class="w-5 h-5 text-accent-500 mr-2" />
-                  免费下载使用
-                </div>
-                <div class="flex items-center">
-                  <CheckCircleIcon class="w-5 h-5 text-accent-500 mr-2" />
-                  科学训练方法
-                </div>
-                <div class="flex items-center">
-                  <CheckCircleIcon class="w-5 h-5 text-accent-500 mr-2" />
-                  个性化定制
-                </div>
-              </div>
-            </div>
-
-            <!-- 右侧图片/演示 -->
-            <div
-              class="flex justify-center lg:justify-end"
-              :class="{ 'animate-fade-in': isVisible }"
-            >
-              <div class="relative">
-                <!-- 手机模型 -->
-                <div
-                  class="w-80 h-96 bg-gray-900 rounded-3xl p-2 shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-500 glow-on-hover"
-                >
-                  <div class="w-full h-full bg-white rounded-2xl overflow-hidden">
-                    <!-- 模拟APP界面 -->
-                    <div class="gradient-primary h-20 flex items-center justify-center">
-                      <span class="text-white font-bold text-lg">索智AI</span>
-                    </div>
-                    <div class="p-4 space-y-4">
-                      <div class="h-4 bg-gray-200 rounded animate-pulse"></div>
-                      <div class="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                      <div class="h-20 bg-primary-100 rounded-lg flex items-center justify-center">
-                        <img src="@/assets/logo.svg" alt="索智AI" class="w-8 h-8 object-contain" />
-                      </div>
-                      <div class="h-4 bg-gray-200 rounded w-1/2 animate-pulse"></div>
-                      <div class="h-16 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <SparklesIcon class="w-6 h-6 text-gray-400" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <!-- 装饰元素 -->
-                <div
-                  class="absolute -top-4 -right-4 w-8 h-8 bg-yellow-400 rounded-full animate-bounce-slow flex items-center justify-center"
-                >
-                  <SparklesIcon class="w-4 h-4 text-white" />
-                </div>
-                <div
-                  class="absolute -bottom-4 -left-4 w-6 h-6 bg-accent-400 rounded-full animate-bounce-slow flex items-center justify-center"
-                  style="animation-delay: 0.5s"
-                >
-                  <CheckCircleIcon class="w-3 h-3 text-white" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ProductDemo />
+        <a class="explore-link" href="#memories">向下探索，一起成长 <ArrowDownIcon /></a>
       </section>
 
-      <!-- 功能特性区域 -->
-      <section id="features" class="spacing-section bg-white dark:bg-gray-900">
-        <div class="container-max section-padding">
-          <div class="text-center mb-16">
-            <div class="mb-4">
-              <span class="badge-secondary">✨ 核心功能</span>
-            </div>
-            <h2 class="text-responsive-lg font-bold text-gray-900 dark:text-white mb-4">
-              强大功能，助您思维升级
-            </h2>
-            <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              索智AI集成了多种先进的思维训练技术，为您提供全方位的智能思维提升解决方案
-            </p>
-          </div>
-
-          <div class="grid-responsive">
-            <FeatureCard
-              v-for="(feature, index) in features"
-              :key="feature.title"
-              :title="feature.title"
-              :description="feature.description"
-              :icon="feature.icon"
-              class="animate-stagger"
-              :style="{ '--stagger': index }"
-            />
-          </div>
-        </div>
+      <section class="intro-section reveal">
+        <p>
+          每一个想法，都有生长的可能。<br />索智AI帮你<span class="inline-highlight"
+            ><LightBulbIcon />理清思路</span
+          >，连接灵感，<br class="desktop-break" />把日常的思考，变成<span class="inline-highlight"
+            ><SparklesIcon />更好的自己</span
+          >。
+        </p>
+        <span class="intro-signature">YOUR MIND. MORE POSSIBILITIES.</span>
       </section>
 
-      <!-- 产品截图展示区域 -->
-      <section class="spacing-section gradient-bg">
-        <div class="container-max section-padding">
-          <div class="text-center mb-16">
-            <div class="mb-4">
-              <span class="badge-primary">📱 产品展示</span>
-            </div>
-            <h2 class="text-responsive-lg font-bold text-gray-900 dark:text-white mb-4">
-              直观体验，一目了然
-            </h2>
-            <p class="text-xl text-gray-600 dark:text-gray-300">
-              精心设计的用户界面，让思维训练变得简单有趣
-            </p>
-          </div>
+      <section id="memories" class="memory-section landing-section">
+        <div class="section-heading reveal">
+          <span class="section-pill">了解你</span>
+          <h2>每一个想法，都被认真对待。</h2>
+          <p>
+            你的兴趣、目标和每一次探索，串起独一无二的成长轨迹。<br
+              class="desktop-break"
+            />从了解你的思考开始，找到适合你的下一步。
+          </p>
+        </div>
+        <div class="reveal"><MemoryBoard /></div>
+      </section>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <!-- 截图1 -->
-            <div class="card-feature group">
-              <div
-                class="aspect-w-9 aspect-h-16 bg-gradient-to-br from-primary-100 to-primary-200 rounded-xl mb-4"
-              >
-                <div class="flex items-center justify-center">
-                  <div class="text-center p-8">
-                    <div
-                      class="w-16 h-16 gradient-primary rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg"
-                    >
-                      <img src="@/assets/logo.svg" alt="索智AI" class="w-8 h-8 object-contain" />
-                    </div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">思维训练</h3>
-                    <p class="text-gray-600 text-sm">个性化训练计划</p>
-                  </div>
-                </div>
+      <section id="proactive" class="proactive-section landing-section">
+        <div class="section-heading reveal">
+          <span class="section-pill">启发你</span>
+          <h2>不止给你答案，还带来新视角。</h2>
+          <p>
+            卡住的时候，换一种方式想一想。<br />把复杂的问题拆小，让灵感落地，让每一步都更清晰。
+          </p>
+        </div>
+        <div class="proactive-grid page-width reveal">
+          <article class="proactive-card perspective-card">
+            <div class="card-eyebrow"><span class="tiny-dot"></span>一个新的思考角度</div>
+            <div class="perspective-note">
+              <LightBulbIcon />
+              <p>「如果换一个人的视角，<br />这件事会有什么不同？」</p>
+            </div>
+            <div class="suggestion-bubble">
+              <img src="@/assets/logo.svg" alt="" />
+              <p>先别急着给出结论。试着列出三种可能，再选择最值得验证的一种。</p>
+            </div>
+            <span class="proactive-caption">让思考，多一种可能。</span>
+          </article>
+          <article class="proactive-card action-card">
+            <div class="card-eyebrow"><PencilSquareIcon />从想法到行动</div>
+            <div class="action-note">
+              <span>我的新目标</span>
+              <h3>想提升思维能力，<br />但不知道从哪里开始。</h3>
+              <p>不需要一份复杂的计划。<br />先从今天能做的一小步开始。</p>
+            </div>
+            <button class="small-dark-button" @click="planCreated = !planCreated">
+              {{ planCreated ? '重新查看目标' : '帮我拆解目标' }}<ArrowRightIcon /></button
+            ><Transition name="plan"
+              ><div v-if="planCreated" class="generated-plan" role="status">
+                <span><CheckIcon />每天 5 分钟问题拆解</span
+                ><span><CheckIcon />记录一个新的想法</span
+                ><span><CheckIcon />周末回顾一次收获</span>
+              </div></Transition
+            ><span v-if="!planCreated" class="action-footnote">点击，试试把目标变成小步骤</span>
+          </article>
+          <article class="proactive-card rhythm-card">
+            <div class="card-eyebrow"><ClockIcon />让成长融入日常</div>
+            <h3>属于你的，<br />一点点进步。</h3>
+            <div class="rhythm-list">
+              <div>
+                <span class="rhythm-icon mint"><BookOpenIcon /></span
+                ><span>读一点，想一点<small>晨间的 10 分钟</small></span
+                ><CheckIcon />
               </div>
               <div>
-                <h4 class="font-semibold text-gray-900 dark:text-white mb-2">智能训练模块</h4>
-                <p class="text-gray-600 dark:text-gray-300 text-sm">
-                  根据您的能力水平，智能推荐最适合的训练内容
-                </p>
-              </div>
-            </div>
-
-            <!-- 截图2 -->
-            <div class="card-feature group">
-              <div
-                class="aspect-w-9 aspect-h-16 bg-gradient-to-br from-accent-100 to-accent-200 rounded-xl mb-4"
-              >
-                <div class="flex items-center justify-center">
-                  <div class="text-center p-8">
-                    <div
-                      class="w-16 h-16 bg-accent-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg"
-                    >
-                      <ChartBarIcon class="w-8 h-8 text-white" />
-                    </div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">进度追踪</h3>
-                    <p class="text-gray-600 text-sm">可视化学习进度</p>
-                  </div>
-                </div>
+                <span class="rhythm-icon lavender"><LightBulbIcon /></span
+                ><span>捕捉一个新灵感<small>随时随地</small></span
+                ><CheckIcon />
               </div>
               <div>
-                <h4 class="font-semibold text-gray-900 dark:text-white mb-2">学习分析</h4>
-                <p class="text-gray-600 dark:text-gray-300 text-sm">
-                  详细的学习报告，帮您了解自己的进步情况
-                </p>
+                <span class="rhythm-icon sand"><ChartBarIcon /></span
+                ><span>和自己聊聊收获<small>一天结束的时候</small></span
+                ><CheckIcon />
               </div>
             </div>
+            <span class="proactive-caption">小小的坚持，也有大大的力量。</span>
+          </article>
+        </div>
+      </section>
 
-            <!-- 截图3 -->
-            <div class="card-feature group">
-              <div
-                class="aspect-w-9 aspect-h-16 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl mb-4"
-              >
-                <div class="flex items-center justify-center">
-                  <div class="text-center p-8">
-                    <div
-                      class="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg"
-                    >
-                      <UsersIcon class="w-8 h-8 text-white" />
-                    </div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">社区交流</h3>
-                    <p class="text-gray-600 text-sm">与他人分享心得</p>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <h4 class="font-semibold text-gray-900 dark:text-white mb-2">思维社区</h4>
-                <p class="text-gray-600 dark:text-gray-300 text-sm">
-                  与全球用户交流思维技巧，共同成长
-                </p>
-              </div>
+      <section id="use-cases" class="use-cases-section landing-section">
+        <div class="section-heading reveal">
+          <span class="section-pill">使用场景</span>
+          <h2>陪你探索，生活的更多面。</h2>
+          <p>
+            认真工作，尽情创造，持续学习，也留一点时间给生活。<br
+              class="desktop-break"
+            />无论此刻的你正在做什么，都可以找到新的思考方向。
+          </p>
+        </div>
+        <div class="scenario-picker reveal" role="group" aria-label="选择使用场景">
+          <button
+            v-for="(item, index) in scenarios"
+            :key="item.label"
+            :class="{ active: scenario === index }"
+            :aria-pressed="scenario === index"
+            @click="scenario = index"
+          >
+            <component :is="item.icon" />{{ item.label }}
+          </button>
+        </div>
+        <div class="scenario-panel page-width reveal">
+          <div class="scenario-image">
+            <Transition name="memory" mode="out-in"
+              ><img
+                :key="scenario"
+                :src="currentScenario.image"
+                :alt="currentScenario.alt"
+                loading="lazy"
+                width="560"
+                height="440" /></Transition
+            ><span class="scenario-quote">{{ currentScenario.quote }}</span>
+          </div>
+          <div class="scenario-copy">
+            <span class="scenario-number">0{{ scenario + 1 }} / 日常里的无限可能</span>
+            <h3>{{ currentScenario.heading }}</h3>
+            <p>{{ currentScenario.text }}</p>
+            <div class="scenario-tags">
+              <span v-for="tag in currentScenario.tags" :key="tag">{{ tag }}</span>
             </div>
+            <a href="#download">开启你的探索 <ArrowUpRightIcon /></a>
           </div>
         </div>
       </section>
 
-      <!-- 用户评价区域 -->
-      <section class="spacing-section bg-white dark:bg-gray-900">
-        <div class="container-max section-padding">
-          <div class="text-center mb-16">
-            <div class="mb-4">
-              <span class="badge-success">⭐ 用户好评</span>
+      <section id="capabilities" class="capabilities-section landing-section">
+        <span id="features" class="section-anchor"></span>
+        <div class="section-heading reveal">
+          <span class="section-pill">功能特性</span>
+          <h2>为更好的思考，准备好每一种能力。</h2>
+          <p>
+            从思维训练到创意探索，从个人成长到社区交流。<br
+              class="desktop-break"
+            />把实用的工具，变成日常里自然发生的帮助。
+          </p>
+        </div>
+        <div class="capability-grid page-width">
+          <article
+            v-for="feature in features"
+            :key="feature.title"
+            class="capability-card reveal"
+            :class="feature.type"
+          >
+            <div class="capability-visual">
+              <component :is="feature.icon" /><span>{{ feature.label }}</span>
             </div>
-            <h2 class="text-responsive-lg font-bold text-gray-900 dark:text-white mb-4">
-              用户真实反馈
-            </h2>
-            <p class="text-xl text-gray-600 dark:text-gray-300">来自全球用户的真实使用体验分享</p>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div
-              v-for="(testimonial, index) in testimonials"
-              :key="testimonial.name"
-              class="card group animate-stagger"
-              :style="{ '--stagger': index }"
-            >
-              <div class="flex items-center mb-4">
-                <div
-                  class="w-12 h-12 bg-primary-100 dark:bg-primary-900/20 rounded-full flex items-center justify-center text-2xl mr-4"
-                >
-                  {{ testimonial.avatar }}
-                </div>
-                <div>
-                  <h4 class="font-semibold text-gray-900 dark:text-white">
-                    {{ testimonial.name }}
-                  </h4>
-                  <p class="text-gray-600 dark:text-gray-400 text-sm">{{ testimonial.role }}</p>
-                </div>
-              </div>
-              <p class="text-gray-700 dark:text-gray-300 italic mb-4">
-                "{{ testimonial.content }}"
-              </p>
-              <div class="flex text-yellow-400">
-                <svg
-                  v-for="i in 5"
-                  :key="i"
-                  class="w-5 h-5"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                  />
-                </svg>
-              </div>
-            </div>
-          </div>
+            <h3>{{ feature.title }}</h3>
+            <p>{{ feature.text }}</p>
+          </article>
         </div>
       </section>
 
-      <!-- 下载区域 -->
-      <section id="download" class="gradient-primary py-20 text-white relative overflow-hidden">
-        <!-- 背景装饰 -->
-        <div class="absolute inset-0">
-          <div
-            class="absolute top-10 left-20 w-32 h-32 bg-white/10 rounded-full blur-2xl animate-float"
-          ></div>
-          <div
-            class="absolute bottom-10 right-20 w-48 h-48 bg-white/10 rounded-full blur-2xl animate-float"
-            style="animation-delay: 2s"
-          ></div>
-        </div>
-
-        <div class="container-max section-padding text-center relative">
-          <div class="mb-6">
-            <span
-              class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-white/20 backdrop-blur-sm"
-            >
-              <RocketLaunchIcon class="w-4 h-4 mr-2" />
-              立即开始
-            </span>
-          </div>
-          <h2 class="text-responsive-lg font-bold mb-4">立即开始您的思维提升之旅</h2>
-          <p class="text-xl mb-8 opacity-90">免费下载索智AI，体验智能思维训练的魅力</p>
-          <DownloadButton :show-q-r-code="true" />
-
-          <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            <div class="p-6 bg-white/10 backdrop-blur-sm rounded-2xl">
-              <div class="text-3xl font-bold mb-2">100万+</div>
-              <div class="opacity-80">全球用户</div>
-            </div>
-            <div class="p-6 bg-white/10 backdrop-blur-sm rounded-2xl">
-              <div class="text-3xl font-bold mb-2">4.8分</div>
-              <div class="opacity-80">用户评分</div>
-            </div>
-            <div class="p-6 bg-white/10 backdrop-blur-sm rounded-2xl">
-              <div class="text-3xl font-bold mb-2">50+</div>
-              <div class="opacity-80">训练模块</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 联系我们区域 -->
-      <section id="contact" class="spacing-section bg-gray-50 dark:bg-gray-800">
-        <div class="container-max section-padding">
-          <div class="text-center mb-16">
-            <div class="mb-4">
-              <span class="badge-secondary">📞 联系我们</span>
-            </div>
-            <h2 class="text-responsive-lg font-bold text-gray-900 dark:text-white mb-4">
-              联系我们
-            </h2>
-            <p class="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              有任何问题或建议？我们很乐意为您提供帮助
-            </p>
-          </div>
-
-          <div class="max-w-2xl mx-auto">
-            <div class="card text-center">
-              <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                北京图存科技有限公司
-              </h3>
-              <div class="space-y-4 text-gray-600 dark:text-gray-300">
-                <p class="flex items-center justify-center">
-                  <svg
-                    class="w-5 h-5 mr-3 text-primary-500"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                  北京市朝阳区
-                </p>
-                <p class="flex items-center justify-center">
-                  <svg
-                    class="w-5 h-5 mr-3 text-primary-500"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"
-                    />
-                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                  </svg>
-                  contact@seekmind.ai
-                </p>
-                <p class="flex items-center justify-center">
-                  <svg
-                    class="w-5 h-5 mr-3 text-primary-500"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"
-                    />
-                  </svg>
-                  400-123-4567
-                </p>
-              </div>
-            </div>
-          </div>
+      <section id="download" class="download-section">
+        <div class="download-atmosphere" aria-hidden="true"></div>
+        <div class="download-content reveal">
+          <img
+            class="download-logo"
+            src="@/assets/logo.svg"
+            alt="索智AI"
+            width="64"
+            height="64"
+          /><span class="section-pill">下一步，从这里开始</span>
+          <h2>给好奇心，<br />一个新的开始。</h2>
+          <p>下载索智AI，让每一天的思考，多一点可能。</p>
+          <div class="landing-download-buttons"><DownloadButton /></div>
+          <span class="download-note">适用于 iOS 与 Android</span>
         </div>
       </section>
     </main>
-
-    <!-- 页脚 -->
     <AppFooter />
   </div>
 </template>
-
-<style scoped>
-/* 组件特定样式 */
-.aspect-w-9 {
-  position: relative;
-  padding-bottom: calc(16 / 9 * 100%);
-}
-
-.aspect-w-9 > * {
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-}
-</style>

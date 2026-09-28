@@ -295,23 +295,27 @@ onMounted(() => {
 
 <style scoped>
 /* 内容样式 */
-.prose h2 {
+.prose {
+  @apply text-gray-700;
+}
+
+.prose :deep(h2) {
   @apply text-2xl font-bold text-gray-900 mt-8 mb-4;
 }
 
-.prose h3 {
+.prose :deep(h3) {
   @apply text-xl font-semibold text-gray-900 mt-6 mb-3;
 }
 
-.prose p {
+.prose :deep(p) {
   @apply text-gray-700 leading-relaxed mb-4;
 }
 
-.prose ul {
+.prose :deep(ul) {
   @apply list-disc list-inside text-gray-700 mb-4;
 }
 
-.prose li {
+.prose :deep(li) {
   @apply mb-2;
 }
 </style>
